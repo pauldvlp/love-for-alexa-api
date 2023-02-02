@@ -9,7 +9,7 @@ import { messageModel } from './message.model.js'
 
 dotenv.config();
 
-const formatDate = (date = new Date(Date.now() - (new Date().getTimezoneOffset() * 1000))) => {
+const formatDate = (date = new Date(Date.now())) => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   return Intl
   .DateTimeFormat('en-UK', { dateStyle: 'short', timeStyle: 'short', hourCycle: "h12", timeZone })
@@ -40,8 +40,8 @@ app.get('/messages', async (req, res) => {
 
 app.post('/messages', async (req, res) => {
   try {
-    const { message } = req.body
-    const createdMessage = await messageModel.create({ text: message, date: formatDate() });
+    const { message, date } = req.body
+    const createdMessage = await messageModel.create({ text: message, date: formatDate(date) });
     await createdMessage.save()
     res.status(201).send({ status: 'OK', data: createdMessage })
   } catch (error) {

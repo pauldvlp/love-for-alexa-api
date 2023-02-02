@@ -73,7 +73,7 @@
             const options = {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ message }),
+              body: JSON.stringify({ message, date: new Date().getTime() }),
             };
 
             const { status, data } = await fetch(API_URL, options).then(res => res.json());
