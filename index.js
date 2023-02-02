@@ -10,9 +10,8 @@ import { messageModel } from './message.model.js'
 dotenv.config();
 
 const formatDate = (date = new Date(Date.now())) => {
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   return Intl
-  .DateTimeFormat('en-UK', { dateStyle: 'short', timeStyle: 'short', hourCycle: "h12", timeZone })
+  .DateTimeFormat('en-UK', { dateStyle: 'short', timeStyle: 'short', hourCycle: "h12" })
   .format(date)
   .replace(',', ' -')
   .toUpperCase()
