@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Love For Alexa 💖</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', ...tailwind.defaultConfig.theme.fontFamily.sans],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <section class="fixed inset-0 grid place-items-center">
+      <form class="w-full max-w-lg grid gap-4">
+        <h1 class="text-center text-2xl font-semibold">Love 💖</h1>
+        <textarea
+          class="h-48 resize-none p-4 bg-slate-50 rounded-lg focus:outline-blue-200"
+          name="message"
+          placeholder="Type message here..."
+        ></textarea>
+        <button
+          class="h-12 px-6 font-semibold text-sm bg-blue-600 rounded-lg justify-self-end text-white duration-300 focus:outline-blue-200 hover:shadow-lg hover:shadow-blue-200 hover:-rotate-2 hover:-translate-y-2 active:scale-90 active:shadow-none disabled:bg-slate-500"
+          type="submit"
+        >
+          Send
+        </button>
+
+        <footer
+          class="flex gap-2 items-center hidden p-4 rounded-lg bg-red-50 border-2 border-red-500"
+        >
+          <img class="w-[16px]" src="error.png" alt="error" />
+          <small class="text-red-600 text-sm font-semibold"
+            >Este es un mensaje de error</small
+          >
+        </footer>
+      </form>
+    </section>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const API_URL = 'http://localhost:3000/messages';
+      const $ = (selector) => document.querySelector(selector);
+
+      const socket = io()
+
+      const $form = $('form');
+      const $footer = $('footer');
+      const $small = $('small');
+      const $button = $('button');
+
+      const handleSubmit = async (e) => {
+        try {
+          e.preventDefault();
+          const message = $form.message.value.trim();
+
+          if (Boolean(message)) {
+            $footer.classList.add('hidden');
+            $button.textContent = 'Sending...'
+            $button.disabled = true
+            
+            const options = {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ message }),
+            };
+
+            const { status, data } = await fetch(API_URL, options).then(res => res.json());
+
+            if (status === 'FAILED') {
+              throw new Error(data.error)
+            }
+
+            socket.emit('new-message')
+            $button.textContent = 'Sended!'
+            setTimeout(() => {
+              $button.textContent = 'Send'
+              $button.disabled = false
+              $form.reset()
+            }, 2000)
+          }
+        } catch (error) {
+          console.log(error);
+          $footer.classList.remove('hidden');
+          $small.textContent = error?.message || error.toString();
+        }
+      };
+
+      $form.addEventListener('submit', handleSubmit);
+    </script>
+  </body>
+</html>
