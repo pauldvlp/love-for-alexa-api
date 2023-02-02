@@ -7,7 +7,7 @@ import path from 'path'
 import mongoose from 'mongoose'
 import { messageModel } from './message.model.js'
 
-dotenv.config()
+dotenv.config();
 
 const formatDate = (date = new Date(Date.now() - (new Date().getTimezoneOffset() * 1000))) => {
   return Intl
