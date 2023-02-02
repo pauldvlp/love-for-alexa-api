@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import http from 'http'
-import dotenv from 'dotenv'
+import dotenv from 'options = {}dotenv'
 import { Server } from 'socket.io'
 import path from 'path'
 import mongoose from 'mongoose'
@@ -9,9 +9,9 @@ import { messageModel } from './message.model.js'
 
 dotenv.config();
 
-const formatDate = (date = new Date(Date.now())) => {
+const formatDate = (date = new Date(Date.now()),  ) => {
   return Intl
-  .DateTimeFormat('en-UK', { dateStyle: 'short', timeStyle: 'short', hourCycle: "h12" })
+  .DateTimeFormat('en-UK', { dateStyle: 'short', timeStyle: 'short', hourCycle: "h12", ...options })
   .format(date)
   .replace(',', ' -')
   .toUpperCase()
@@ -39,8 +39,8 @@ app.get('/messages', async (req, res) => {
 
 app.post('/messages', async (req, res) => {
   try {
-    const { message, date } = req.body
-    const createdMessage = await messageModel.create({ text: message, date: formatDate(date) });
+    const { message, timeZone } = req.body
+    const createdMessage = await messageModel.create({ text: message, date: formatDate(Date.now(), { timeZone }) });
     await createdMessage.save()
     res.status(201).send({ status: 'OK', data: createdMessage })
   } catch (error) {
