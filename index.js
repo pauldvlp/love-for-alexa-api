@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import http from 'http'
-import dotenv from 'options = {}dotenv'
+import dotenv from 'dotenv'
 import { Server } from 'socket.io'
 import path from 'path'
 import mongoose from 'mongoose'
