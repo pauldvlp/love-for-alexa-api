@@ -9,7 +9,7 @@ import { messageModel } from './message.model.js'
 
 dotenv.config();
 
-const formatDate = (date = new Date(Date.now()),  ) => {
+const formatDate = (date = new Date(Date.now()),  options = {}) => {
   return Intl
   .DateTimeFormat('en-UK', { dateStyle: 'short', timeStyle: 'short', hourCycle: "h12", ...options })
   .format(date)
