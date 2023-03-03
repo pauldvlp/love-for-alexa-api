@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Love For Alexa 💖</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -14,7 +14,7 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', ...tailwind.defaultConfig.theme.fontFamily.sans],
+              sans: ["Inter", ...tailwind.defaultConfig.theme.fontFamily.sans],
             },
           },
         },
@@ -22,7 +22,7 @@
     </script>
   </head>
   <body>
-    <section class="fixed inset-0 grid place-items-center">
+    <section class="min-h-screen p-4 grid place-items-center">
       <form class="w-full max-w-lg grid gap-4">
         <h1 class="text-center text-2xl font-semibold">Love 💖</h1>
         <textarea
@@ -48,17 +48,39 @@
       </form>
     </section>
 
+    <section class="min-h-screen p-4">
+      <h2 class="text-center font-semibold text-2xl">Messages</h2>
+
+      <article id="messages" class="mx-auto max-w-5xl grid-cols-[repeat(auto-fit,minmax(min(100%,350px),1fr))] grid gap-4 mt-12">
+      </article>
+    </section>
+
+    <template id="message">
+      <div class="grid gap-4 grid-rows-[auto_auto_1fr] bg-slate-100 rounded-lg p-4">
+        <p class="whitespace-pre-wrap font-semibold"></p>
+
+        <small class="text-xs font-semibold"></small>
+
+        <button
+          class="h-12 px-6 font-semibold text-sm bg-blue-600 rounded-lg place-self-end text-white duration-300 focus:outline-blue-200 hover:shadow-lg hover:shadow-blue-200 hover:-rotate-2 hover:-translate-y-2 active:scale-90 active:shadow-none disabled:bg-slate-500"
+        >Remove</button>
+      </div>
+    </template>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      const API_URL = '/messages';
+      const API_URL = "/messages";
+      let page = 1
       const $ = (selector) => document.querySelector(selector);
 
-      const socket = io()
+      const socket = io();
 
-      const $form = $('form');
-      const $footer = $('footer');
-      const $small = $('small');
-      const $button = $('button');
+      const $form = $("form");
+      const $footer = $("footer");
+      const $small = $("small");
+      const $button = $("button");
+      const $messages = $("#messages");
+      const $template = $("#message");
 
       const handleSubmit = async (e) => {
         try {
@@ -66,38 +88,67 @@
           const message = $form.message.value.trim();
 
           if (Boolean(message)) {
-            $footer.classList.add('hidden');
-            $button.textContent = 'Sending...'
-            $button.disabled = true
-            
+            $footer.classList.add("hidden");
+            $button.textContent = "Sending...";
+            $button.disabled = true;
+
             const options = {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ message, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                message,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              }),
             };
 
-            const { status, data } = await fetch(API_URL, options).then(res => res.json());
+            const { status, data } = await fetch(API_URL, options).then((res) =>
+              res.json()
+            );
 
-            if (status === 'FAILED') {
-              throw new Error(data.error)
+            if (status === "FAILED") {
+              throw new Error(data.error);
             }
 
-            socket.emit('new-message')
-            $button.textContent = 'Sended!'
+            socket.emit("new-message");
+            $button.textContent = "Sended!";
             setTimeout(() => {
-              $button.textContent = 'Send'
-              $button.disabled = false
-              $form.reset()
-            }, 2000)
+              $button.textContent = "Send";
+              $button.disabled = false;
+              $form.reset();
+            }, 2000);
           }
         } catch (error) {
           console.log(error);
-          $footer.classList.remove('hidden');
+          $footer.classList.remove("hidden");
           $small.textContent = error?.message || error.toString();
         }
       };
 
-      $form.addEventListener('submit', handleSubmit);
+      $form.addEventListener("submit", handleSubmit);
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          const { status, data } = await fetch(`${API_URL}/?page=${page}&limit=10`).then(res => res.json())
+
+          if (status === 'FAILED') {
+            throw new Error(data.error)
+          }
+
+          $messages.innerHTML = ''
+          data.docs.forEach(({ text, date, _id }) => {
+            const $card = $template.cloneNode(true).content
+            console.log($card)
+            $card.querySelector('p').textContent = text
+            $card.querySelector('small').textContent = date
+            $card.querySelector('button').addEventListener('click', async () => {
+              await fetch(`${API_URL}/${_id}`, { method: 'DELETE' })
+            })
+            $messages.appendChild($card)
+          })
+        } catch (error) {
+          alert(error?.message || error.toString())
+        }
+      })
     </script>
   </body>
 </html>

@@ -29,8 +29,8 @@ app.use(express.json())
 
 app.get('/messages', async (req, res) => {
   try {
-    const { query: { page = 1 } } = req
-    const data = await messageModel.paginate({}, { page, limit: 1, sort: { createdAt: 'desc' } })
+    const { query: { page = 1, limit = 1 } } = req
+    const data = await messageModel.paginate({}, { page, limit, sort: { createdAt: 'desc' } })
     res.status(200).send({ status: 'OK', data })
   } catch (error) {
     res.status(500).send({ status: 'FAILED', data: { error: error?.message || error.toString() }})
@@ -43,6 +43,16 @@ app.post('/messages', async (req, res) => {
     const createdMessage = await messageModel.create({ text: message, date: formatDate(Date.now(), { timeZone }) });
     await createdMessage.save()
     res.status(201).send({ status: 'OK', data: createdMessage })
+  } catch (error) {
+    res.status(500).send({ status: 'FAILED', data: { error: error?.message || error.toString() }})
+  }
+})
+
+app.delete('/messages/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    await messageModel.findByIdAndRemove(id)
+    res.status(204).end()
   } catch (error) {
     res.status(500).send({ status: 'FAILED', data: { error: error?.message || error.toString() }})
   }
