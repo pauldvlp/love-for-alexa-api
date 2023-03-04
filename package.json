@@ -10,5 +10,16 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "latest"
+  },
+  "dependencies": {
+    "express": "latest",
+    "dotenv": "latest",
+    "mongoose": "latest",
+    "mongoose-paginate-v2": "latest",
+    "socket.io": "latest",
+    "cors": "latest"
+  }
 }
